@@ -1,27 +1,31 @@
 import model.Expense;
 import service.ExpenseManager;
+import util.ExpenseFileHandler;
 import util.ExpenseUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Expense> expenses = new ArrayList<>();
         boolean stayOpen = true;
 
         System.out.println("********************************");
         System.out.println("Welcome to your expense tracker!");
         System.out.println("********************************");
-
+        //should use a set later
         ExpenseManager expenseManager = new ExpenseManager();
-
-
+        List<Expense> loadedExpenses = ExpenseFileHandler.loadExpenseFromFile("expenses.txt");
+        System.out.println("Loaded expenses:");
+        ExpenseUtils.printExpenses(loadedExpenses);
+        for (Expense e : loadedExpenses){
+            expenseManager.addExpense(e);
+        }
 
 
         while(stayOpen){
@@ -40,8 +44,9 @@ public class Main {
             Expense expense = new Expense(category,description,amount, date);
             expenseManager.addExpense(expense);
 
-
             System.out.println("Expense Added!");
+
+            Thread.sleep(1000);
             ExpenseUtils.printExpenses(expenseManager.getAllExpenses());
 
             Thread.sleep(1000);
@@ -51,6 +56,8 @@ public class Main {
             if(answer.equals("N")){
                 System.out.println("Here's your full expense list:");
                 ExpenseUtils.printExpenses(expenseManager.getAllExpenses());
+                ExpenseFileHandler.saveExpensesToFile(expenseManager.getAllExpenses(), "expenses.txt");
+                System.out.println("Expenses saved to file!");
                 System.out.println("Have a great day!");
                 stayOpen = false;
             }
@@ -63,6 +70,7 @@ public class Main {
                 answer = scanner.nextLine().toUpperCase();
 
             }
+
         }
 
 
